@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JustMD — Markdown that reads like the finished document</title>
+<meta name="description" content="JustMD is a native macOS editor that hides markdown syntax while you write. Open a .md file and see a clean page, not a wall of asterisks.">
+<meta property="og:title" content="JustMD — Markdown that reads like the finished document">
+<meta property="og:description" content="A native macOS markdown editor. One file, one window, one focused writing surface.">
+<meta property="og:image" content="https://yuraist.github.io/justmd/assets/editor.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #fbfaf7;
+  --ink: #1a1c20;
+  --ink-soft: #4b4f57;
+  --marker: #b3b7bf;
+  --accent: #2d5bd1;
+  --hairline: #e6e3dc;
+  --code-bg: #f1efe9;
+  --serif-display: "Fraunces", Georgia, serif;
+  --serif-body: "Newsreader", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif-body);
+  font-size: 1.20rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ——— the page IS a markdown document: syntax markers exist everywhere,
+       invisible until the visitor flips the toggle, exactly like the app */
+.md {
+  font-family: var(--mono);
+  font-size: 0.72em;
+  color: var(--marker);
+  opacity: 0;
+  letter-spacing: 0;
+  transition: opacity 0.45s ease;
+  user-select: none;
+  font-weight: 400;
+  font-style: normal;
+}
+body:has(#syntax:checked) .md { opacity: 1; }
+
+.page { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+/* toggle, styled like a toolbar control */
+.syntax-toggle {
+  position: fixed; top: 18px; right: 20px; z-index: 10;
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft);
+  cursor: pointer; padding: 8px 14px; border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hairline);
+}
+.syntax-toggle input { display: none; }
+.syntax-toggle .pip {
+  width: 30px; height: 17px; border-radius: 999px; background: #d8d5cd;
+  position: relative; transition: background 0.3s;
+}
+.syntax-toggle .pip::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 13px; height: 13px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25); transition: transform 0.3s;
+}
+.syntax-toggle:has(input:checked) .pip { background: var(--accent); }
+.syntax-toggle:has(input:checked) .pip::after { transform: translateX(13px); }
+
+/* hero */
+header { padding: 108px 0 0; }
+.app-mark { display: flex; align-items: center; gap: 14px; margin-bottom: 56px; }
+.app-mark img { width: 56px; height: 56px; }
+.app-mark span { font-family: var(--mono); font-size: 0.85rem; color: var(--ink-soft); }
+h1 {
+  font-family: var(--serif-display);
+  font-size: clamp(2.6rem, 6.4vw, 4.1rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  max-width: 14em;
+}
+.subhead {
+  margin-top: 28px; font-size: 1.32rem; color: var(--ink-soft); max-width: 30em;
+}
+.subhead code {
+  font-family: var(--mono); font-size: 0.82em; background: var(--code-bg);
+  padding: 0.1em 0.35em; border-radius: 5px;
+}
+.cta-row { display: flex; align-items: center; gap: 22px; margin-top: 44px; flex-wrap: wrap; }
+.cta {
+  display: inline-block; background: var(--ink); color: var(--paper);
+  font-family: var(--serif-display); font-weight: 600; font-size: 1.05rem;
+  padding: 15px 30px; border-radius: 999px; text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.cta:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,28,32,0.22); }
+.cta small { display: block; font-family: var(--mono); font-weight: 400; font-size: 0.62rem; opacity: 0.65; margin-top: 2px; }
+.cta-alt { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-bottom: 2px; }
+.cta-alt:hover { color: var(--accent); border-color: var(--accent); }
+
+/* screenshot */
+.shot { margin: 84px calc(50% - 50vw) 0; display: flex; justify-content: center; }
+.shot img {
+  width: min(1060px, 94vw); border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(30,40,80,0.18);
+  border: 1px solid var(--hairline);
+}
+
+/* sections as document structure */
+main { padding-top: 30px; }
+section { padding: 78px 0 8px; }
+h2 {
+  font-family: var(--serif-display); font-weight: 600;
+  font-size: 2.0rem; letter-spacing: -0.01em; margin-bottom: 30px;
+}
+h2 .md { font-size: 0.6em; vertical-align: 0.18em; margin-right: 0.45em; }
+p + p { margin-top: 1em; }
+strong { font-weight: 600; }
+
+/* pain points as the app renders blockquotes: accent bar, no '>' */
+.pains blockquote {
+  border-left: 3px solid var(--accent); padding: 2px 0 2px 22px;
+  margin: 0 0 22px; color: var(--ink-soft); font-style: italic;
+}
+.pains blockquote .md { font-style: normal; margin-right: 0.4em; }
+.pains .bridge { margin-top: 34px; font-style: normal; color: var(--ink); font-weight: 500; }
+
+/* how it works: a rendered ordered list */
+.steps ol { list-style: none; counter-reset: step; }
+.steps li {
+  counter-increment: step; display: grid;
+  grid-template-columns: 52px 1fr; gap: 0 18px; padding: 18px 0;
+  border-top: 1px solid var(--hairline); align-items: baseline;
+}
+.steps li:last-child { border-bottom: 1px solid var(--hairline); }
+.steps li::before {
+  content: counter(step) "."; font-family: var(--serif-display);
+  font-size: 1.7rem; font-weight: 600; color: var(--marker);
+}
+.steps b { font-weight: 600; }
+.steps kbd {
+  font-family: var(--mono); font-size: 0.78em; background: var(--code-bg);
+  border: 1px solid var(--hairline); border-bottom-width: 2px;
+  border-radius: 6px; padding: 0.08em 0.45em;
+}
+
+/* benefits as a rendered task list */
+.benefits ul { list-style: none; }
+.benefits li { display: flex; gap: 14px; padding: 11px 0; align-items: baseline; }
+.benefits li::before {
+  content: "☑"; color: var(--accent); font-size: 1.15em; line-height: 1.3;
+}
+.benefits li .md { margin-right: 0.2em; }
+
+/* final cta */
+.fin { text-align: center; padding: 120px 0 40px; }
+.fin h2 { font-size: 2.5rem; }
+.fin .sub { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); margin-top: 26px; }
+
+footer {
+  margin-top: 90px; border-top: 1px solid var(--hairline);
+  padding: 30px 0 44px; display: flex; gap: 26px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft);
+}
+footer a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--hairline); }
+footer a:hover { color: var(--accent); border-color: var(--accent); }
+footer .spacer { flex: 1; }
+
+/* staggered load reveal */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+header > *, .shot { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.app-mark { animation-delay: 0.05s; }
+h1 { animation-delay: 0.14s; }
+.subhead { animation-delay: 0.24s; }
+.cta-row { animation-delay: 0.34s; }
+.shot { animation-delay: 0.5s; }
+@media (prefers-reduced-motion: reduce) {
+  header > *, .shot { animation: none; }
+  .md, .pip, .pip::after, .cta { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<label class="syntax-toggle" title="Reveal the markdown syntax — JustMD hides it the same way">
+  <input type="checkbox" id="syntax">
+  <span class="pip"></span>
+  show syntax
+</label>
+
+<div class="page">
+<header>
+  <div class="app-mark">
+    <img src="assets/icon.png" alt="JustMD app icon" width="56" height="56">
+    <span>JustMD — for macOS 14+</span>
+  </div>
+  <h1><span class="md"># </span>Markdown that reads like the finished&nbsp;document.</h1>
+  <p class="subhead">JustMD is a native macOS editor that hides the syntax while you write — open a <code>.md</code> file and see a clean page, not a wall of <span class="md">**</span>asterisks<span class="md">**</span>.</p>
+  <div class="cta-row">
+    <a class="cta" href="https://apps.apple.com/app/justmd" aria-label="Download JustMD on the Mac App Store">Mac App Store <small>coming soon — in review</small></a>
+    <a class="cta-alt" href="https://github.com/yuraist/justmd/releases">direct download → releases</a>
+  </div>
+</header>
+
+<div class="shot">
+  <img src="assets/editor.png" alt="JustMD editing a markdown document: syntax markers hidden, checkboxes and tables rendered inline" loading="eager">
+</div>
+
+<main>
+<section class="pains">
+  <h2><span class="md">##</span>You know this file.</h2>
+  <blockquote><span class="md">&gt;</span>You open a README and it's a thicket of <code class="md" style="opacity:1">#</code>, <code class="md" style="opacity:1">**</code> and <code class="md" style="opacity:1">|</code> pipes — you spend more time parsing markup than reading your own words.</blockquote>
+  <blockquote><span class="md">&gt;</span>Your notes app renders markdown beautifully… inside its own library, its own sync, its own subscription. Your files are hostages.</blockquote>
+  <blockquote><span class="md">&gt;</span>You just want to edit the file. Not import it, not create a vault, not configure a preview pane.</blockquote>
+  <blockquote><span class="md">&gt;</span>And the "minimal" Electron editors take three seconds to open a text file, then type with a visible lag.</blockquote>
+  <p class="bridge">Your markdown files deserve a Mac app that treats them like documents.</p>
+</section>
+
+<section>
+  <h2><span class="md">##</span>One file, one window, one focused writing surface.</h2>
+  <p>JustMD opens your local <code class="md" style="opacity:1; font-size:0.82em; background:var(--code-bg); padding:0.1em 0.35em; border-radius:5px; color:var(--ink)">.md</code> files the way TextEdit opens text — instantly, natively, no library and no lock-in.</p>
+  <p>Instead of raw markup you see the document: <strong><span class="md">**</span>syntax markers hide<span class="md">**</span></strong> on every line except the one you're editing, lists get real bullets and clickable checkboxes, tables align into grids. Flip to Read&nbsp;mode for a fully rendered page.</p>
+</section>
+
+<section class="steps">
+  <h2><span class="md">##</span>How it works</h2>
+  <ol>
+    <li><span><b>Open</b> — double-click any <code style="font-family:var(--mono); font-size:0.82em">.md</code> file in Finder, or drop it on the icon.</span></li>
+    <li><span><b>Write</b> — markdown styles as you type; the caret line reveals the raw syntax when you need it.</span></li>
+    <li><span><b>Read</b> — <kbd>⇧⌘E</kbd> switches to a rendered view with real tables, images, and links.</span></li>
+    <li><span><b>Done</b> — autosave and macOS Versions keep the file safe, exactly where it lives.</span></li>
+  </ol>
+</section>
+
+<section class="benefits">
+  <h2><span class="md">##</span>Why people switch</h2>
+  <ul>
+    <li><span><span class="md">- [x] </span>Read your own notes at a glance — no syntax noise between you and the text.</span></li>
+    <li><span><span class="md">- [x] </span>Keystrokes land instantly, even in long documents — native AppKit, not a browser in a costume.</span></li>
+    <li><span><span class="md">- [x] </span>Your files stay yours: plain <code style="font-family:var(--mono); font-size:0.82em">.md</code> on disk, no vault, no sync, no account.</span></li>
+    <li><span><span class="md">- [x] </span>Check off task lists by clicking, not by editing brackets.</span></li>
+    <li><span><span class="md">- [x] </span>Make it yours: five built-in themes plus shareable custom palettes.</span></li>
+  </ul>
+</section>
+
+<section class="fin">
+  <h2>Your markdown, finally legible.</h2>
+  <div class="cta-row" style="justify-content:center">
+    <a class="cta" href="https://apps.apple.com/app/justmd">Mac App Store <small>coming soon — in review</small></a>
+  </div>
+  <p class="sub">native · sandboxed · a few megabytes · macOS 14+</p>
+</section>
+</main>
+
+<footer>
+  <span>© 2026 Yuri Istomin</span>
+  <span class="spacer"></span>
+  <a href="privacy.html">privacy</a>
+  <a href="mailto:yuri.istom@gmail.com">support</a>
+  <a href="https://github.com/yuraist/justmd/releases">releases</a>
+</footer>
+</div>
+
+</body>
+</html>
