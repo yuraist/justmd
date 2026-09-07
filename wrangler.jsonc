@@ -6,7 +6,7 @@
   "assets": {
     "directory": "./public",
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash"
+    "html_handling": "none"
   },
   // Same hosting as nuta.life (Worker "nuta-life-home"): the custom domain
   // creates its own DNS record in the nuta.life zone.
