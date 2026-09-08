@@ -8,6 +8,10 @@
 <meta property="og:title" content="JustMD — Markdown that reads like the finished document">
 <meta property="og:description" content="A native macOS markdown editor. One file, one window, one focused writing surface.">
 <meta property="og:image" content="https://justmd.nuta.life/assets/editor.png">
+<meta property="og:video" content="https://justmd.nuta.life/assets/promo.mp4">
+<meta property="og:video:type" content="video/mp4">
+<meta property="og:video:width" content="1920">
+<meta property="og:video:height" content="1080">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,13 +113,15 @@ h1 {
 .cta-alt { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-bottom: 2px; }
 .cta-alt:hover { color: var(--accent); border-color: var(--accent); }
 
-/* screenshot */
+/* promo video (the hero shot) */
 .shot { margin: 84px calc(50% - 50vw) 0; display: flex; justify-content: center; }
-.shot img {
+.shot video, .shot img {
   width: min(1060px, 94vw); border-radius: 18px;
   box-shadow: 0 30px 80px rgba(30,40,80,0.18);
   border: 1px solid var(--hairline);
+  background: #ebebed; display: block;
 }
+.shot video { aspect-ratio: 16 / 9; }
 
 /* sections as document structure */
 main { padding-top: 30px; }
@@ -223,7 +229,12 @@ h1 { animation-delay: 0.14s; }
 </header>
 
 <div class="shot">
-  <img src="assets/editor.png" alt="JustMD editing a markdown document: syntax markers hidden, checkboxes and tables rendered inline" loading="eager">
+  <video autoplay muted loop playsinline controls preload="metadata"
+         poster="assets/promo-poster.jpg"
+         aria-label="JustMD in 40 seconds: syntax that appears only on the line you edit, reading mode, checkboxes, themes, print to PDF">
+    <source src="assets/promo.mp4" type="video/mp4">
+    <img src="assets/editor.png" alt="JustMD editing a markdown document: syntax markers hidden except on the caret line">
+  </video>
 </div>
 
 <main>
