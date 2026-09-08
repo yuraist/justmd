@@ -36,20 +36,29 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ——— the page IS a markdown document: syntax markers exist everywhere,
-       invisible until the visitor flips the toggle, exactly like the app */
+/* ——— the page IS a markdown document: syntax markers exist everywhere.
+       Shown by default; the toggle hides them exactly like the app does.
+       Hidden markers collapse to zero width so the text doesn't gap. */
 .md {
   font-family: var(--mono);
-  font-size: 0.72em;
+  font-size: 0;
   color: var(--marker);
   opacity: 0;
   letter-spacing: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity 0.35s ease, font-size 0.35s ease;
   user-select: none;
   font-weight: 400;
   font-style: normal;
 }
-body:has(#syntax:checked) .md { opacity: 1; }
+body:has(#syntax:checked) .md { opacity: 1; font-size: 0.72em; }
+body:has(#syntax:checked) h2 .md { font-size: 0.6em; }
+
+/* literal markers that are part of the copy — always visible */
+.lit { font-family: var(--mono); font-size: 0.72em; color: var(--marker); }
+.code {
+  font-family: var(--mono); font-size: 0.82em; background: var(--code-bg);
+  padding: 0.1em 0.35em; border-radius: 5px;
+}
 
 .page { max-width: 720px; margin: 0 auto; padding: 0 24px; }
 
@@ -92,19 +101,11 @@ h1 {
 .subhead {
   margin-top: 28px; font-size: 1.32rem; color: var(--ink-soft); max-width: 30em;
 }
-.subhead code {
-  font-family: var(--mono); font-size: 0.82em; background: var(--code-bg);
-  padding: 0.1em 0.35em; border-radius: 5px;
-}
 .cta-row { display: flex; align-items: center; gap: 22px; margin-top: 44px; flex-wrap: wrap; }
-.cta {
-  display: inline-block; background: var(--ink); color: var(--paper);
-  font-family: var(--serif-display); font-weight: 600; font-size: 1.05rem;
-  padding: 15px 30px; border-radius: 999px; text-decoration: none;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-.cta:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,28,32,0.22); }
-.cta small { display: block; font-family: var(--mono); font-weight: 400; font-size: 0.62rem; opacity: 0.65; margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; }
+.badge img { height: 56px; width: auto; display: block; transition: transform 0.18s ease, filter 0.18s ease; }
+.badge:hover img { transform: translateY(-2px); filter: drop-shadow(0 10px 22px rgba(26,28,32,0.22)); }
+.badge small { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-soft); line-height: 1.5; }
 .cta-alt { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-bottom: 2px; }
 .cta-alt:hover { color: var(--accent); border-color: var(--accent); }
 
@@ -123,17 +124,17 @@ h2 {
   font-family: var(--serif-display); font-weight: 600;
   font-size: 2.0rem; letter-spacing: -0.01em; margin-bottom: 30px;
 }
-h2 .md { font-size: 0.6em; vertical-align: 0.18em; margin-right: 0.45em; }
+h2 .md { vertical-align: 0.18em; margin-right: 0.45em; }
 p + p { margin-top: 1em; }
 strong { font-weight: 600; }
 
 /* pain points as the app renders blockquotes: accent bar, no '>' */
 .pains blockquote {
   border-left: 3px solid var(--accent); padding: 2px 0 2px 22px;
-  margin: 0 0 22px; color: var(--ink-soft); font-style: italic;
+  margin: 0 0 22px; color: var(--ink-soft);
 }
-.pains blockquote .md { font-style: normal; margin-right: 0.4em; }
-.pains .bridge { margin-top: 34px; font-style: normal; color: var(--ink); font-weight: 500; }
+.pains blockquote .md { margin-right: 0.4em; }
+.pains .bridge { margin-top: 34px; color: var(--ink); font-weight: 500; }
 
 /* how it works: a rendered ordered list */
 .steps ol { list-style: none; counter-reset: step; }
@@ -186,17 +187,26 @@ h1 { animation-delay: 0.14s; }
 .shot { animation-delay: 0.5s; }
 @media (prefers-reduced-motion: reduce) {
   header > *, .shot { animation: none; }
-  .md, .pip, .pip::after, .cta { transition: none; }
+  .md, .pip, .pip::after, .badge img { transition: none; }
 }
 </style>
 </head>
 <body>
 
 <label class="syntax-toggle" title="Reveal the markdown syntax — JustMD hides it the same way">
-  <input type="checkbox" id="syntax">
+  <input type="checkbox" id="syntax" checked>
   <span class="pip"></span>
   show syntax
 </label>
+<script>
+  (function () {
+    var box = document.getElementById("syntax");
+    try { if (localStorage.getItem("syntax") === "off") box.checked = false; } catch (e) {}
+    box.addEventListener("change", function () {
+      try { localStorage.setItem("syntax", box.checked ? "on" : "off"); } catch (e) {}
+    });
+  })();
+</script>
 
 <div class="page">
 <header>
@@ -205,10 +215,10 @@ h1 { animation-delay: 0.14s; }
     <span>JustMD — for macOS 14+</span>
   </div>
   <h1><span class="md"># </span>Markdown that reads like the finished&nbsp;document.</h1>
-  <p class="subhead">JustMD is a native macOS editor that hides the syntax while you write — open a <code>.md</code> file and see a clean page, not a wall of <span class="md">**</span>asterisks<span class="md">**</span>.</p>
+  <p class="subhead">JustMD is a native macOS editor that hides the syntax while you write — open a <code class="code">.md</code> file and see a clean page, not a wall of <span class="md">**</span>asterisks<span class="md">**</span>.</p>
   <div class="cta-row">
-    <a class="cta" href="https://apps.apple.com/app/id6779422717" aria-label="Download JustMD on the Mac App Store">Mac App Store <small>coming soon — in review</small></a>
-    <a class="cta-alt" href="https://github.com/yuraist/justmd/releases">direct download → releases</a>
+    <a class="badge" href="https://apps.apple.com/app/id6779422717" aria-label="Download JustMD on the Mac App Store"><img src="assets/mac-app-store-badge.svg" alt="Download on the Mac App Store" width="218" height="56"><small>in review —<br>coming soon</small></a>
+    <a class="cta-alt" href="https://github.com/yuraist/justmd/releases/latest/download/JustMD-1.0.dmg">direct download → .dmg (notarized)</a>
   </div>
 </header>
 
@@ -219,7 +229,7 @@ h1 { animation-delay: 0.14s; }
 <main>
 <section class="pains">
   <h2><span class="md">##</span>You know this file.</h2>
-  <blockquote><span class="md">&gt;</span>You open a README and it's a thicket of <code class="md" style="opacity:1">#</code>, <code class="md" style="opacity:1">**</code> and <code class="md" style="opacity:1">|</code> pipes — you spend more time parsing markup than reading your own words.</blockquote>
+  <blockquote><span class="md">&gt;</span>You open a README and it's a thicket of <code class="lit">#</code>, <code class="lit">**</code> and <code class="lit">|</code> pipes — you spend more time parsing markup than reading your own words.</blockquote>
   <blockquote><span class="md">&gt;</span>Your notes app renders markdown beautifully… inside its own library, its own sync, its own subscription. Your files are hostages.</blockquote>
   <blockquote><span class="md">&gt;</span>You just want to edit the file. Not import it, not create a vault, not configure a preview pane.</blockquote>
   <blockquote><span class="md">&gt;</span>And the "minimal" Electron editors take three seconds to open a text file, then type with a visible lag.</blockquote>
@@ -228,14 +238,14 @@ h1 { animation-delay: 0.14s; }
 
 <section>
   <h2><span class="md">##</span>One file, one window, one focused writing surface.</h2>
-  <p>JustMD opens your local <code class="md" style="opacity:1; font-size:0.82em; background:var(--code-bg); padding:0.1em 0.35em; border-radius:5px; color:var(--ink)">.md</code> files the way TextEdit opens text — instantly, natively, no library and no lock-in.</p>
+  <p>JustMD opens your local <code class="code">.md</code> files the way TextEdit opens text — instantly, natively, no library and no lock-in.</p>
   <p>Instead of raw markup you see the document: <strong><span class="md">**</span>syntax markers hide<span class="md">**</span></strong> on every line except the one you're editing, lists get real bullets and clickable checkboxes, tables align into grids. Flip to Read&nbsp;mode for a fully rendered page.</p>
 </section>
 
 <section class="steps">
   <h2><span class="md">##</span>How it works</h2>
   <ol>
-    <li><span><b>Open</b> — double-click any <code style="font-family:var(--mono); font-size:0.82em">.md</code> file in Finder, or drop it on the icon.</span></li>
+    <li><span><b>Open</b> — double-click any <code class="code">.md</code> file in Finder, or drop it on the icon.</span></li>
     <li><span><b>Write</b> — markdown styles as you type; the caret line reveals the raw syntax when you need it.</span></li>
     <li><span><b>Read</b> — <kbd>⇧⌘E</kbd> switches to a rendered view with real tables, images, and links.</span></li>
     <li><span><b>Done</b> — autosave and macOS Versions keep the file safe, exactly where it lives.</span></li>
@@ -247,7 +257,7 @@ h1 { animation-delay: 0.14s; }
   <ul>
     <li><span><span class="md">- [x] </span>Read your own notes at a glance — no syntax noise between you and the text.</span></li>
     <li><span><span class="md">- [x] </span>Keystrokes land instantly, even in long documents — native AppKit, not a browser in a costume.</span></li>
-    <li><span><span class="md">- [x] </span>Your files stay yours: plain <code style="font-family:var(--mono); font-size:0.82em">.md</code> on disk, no vault, no sync, no account.</span></li>
+    <li><span><span class="md">- [x] </span>Your files stay yours: plain <code class="code">.md</code> on disk, no vault, no sync, no account.</span></li>
     <li><span><span class="md">- [x] </span>Check off task lists by clicking, not by editing brackets.</span></li>
     <li><span><span class="md">- [x] </span>Make it yours: five built-in themes plus shareable custom palettes.</span></li>
   </ul>
@@ -256,7 +266,7 @@ h1 { animation-delay: 0.14s; }
 <section class="fin">
   <h2>Your markdown, finally legible.</h2>
   <div class="cta-row" style="justify-content:center">
-    <a class="cta" href="https://apps.apple.com/app/id6779422717">Mac App Store <small>coming soon — in review</small></a>
+    <a class="badge" href="https://apps.apple.com/app/id6779422717" aria-label="Download JustMD on the Mac App Store"><img src="assets/mac-app-store-badge.svg" alt="Download on the Mac App Store" width="218" height="56"><small>in review —<br>coming soon</small></a>
   </div>
   <p class="sub">native · sandboxed · a few megabytes · macOS 14+</p>
 </section>
