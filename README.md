@@ -9,19 +9,6 @@ with static assets on the same account as nuta.life.
 
 ## Landing and download analytics
 
-**Activation pending:** Analytics Engine is not enabled on the Cloudflare account.
-The live landing and all download redirects work; clicks are not recorded yet.
-After enabling Analytics Engine in the dashboard, add the following binding to
-`wrangler.jsonc`, update the website privacy section, and redeploy:
-
-```json
-"analytics_engine_datasets": [
-  { "binding": "DOWNLOADS", "dataset": "justmd_downloads" }
-]
-```
-
-The description below documents the prepared analytics implementation.
-
 The page stays buildless. `src/worker.mjs` handles only `/go/*`; other files
 are served by Workers Static Assets. The App Store and DMG links use fixed
 302 redirects with `Cache-Control: no-store`, so each request can be counted.

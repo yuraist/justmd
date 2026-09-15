@@ -11,6 +11,9 @@
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
   },
+  "analytics_engine_datasets": [
+    { "binding": "DOWNLOADS", "dataset": "justmd_downloads" }
+  ],
   // Same hosting as nuta.life (Worker "nuta-life-home"): the custom domain
   // creates its own DNS record in the nuta.life zone.
   "routes": [
