@@ -15,7 +15,7 @@ export default {
     const purpose = `${request.headers.get('Purpose') || ''} ${request.headers.get('Sec-Purpose') || ''}`;
     // Record only the button and its position. Never store IPs, user agents, or referrers.
     // HEAD checks and speculative prefetches should not inflate download intent.
-    if (request.method === 'GET' && !purpose.includes('prefetch')) {
+    if (env.DOWNLOADS && request.method === 'GET' && !purpose.includes('prefetch')) {
       try {
         env.DOWNLOADS.writeDataPoint({
           indexes: ['justmd'],
