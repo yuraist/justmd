@@ -2,295 +2,193 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JustMD — Markdown that reads like the finished document</title>
-<meta name="description" content="JustMD is a native macOS editor that hides markdown syntax while you write. Open a .md file and see a clean page, not a wall of asterisks.">
-<meta property="og:title" content="JustMD — Markdown that reads like the finished document">
-<meta property="og:description" content="A native macOS markdown editor. One file, one window, one focused writing surface.">
-<meta property="og:image" content="https://justmd.nuta.life/assets/editor.png">
-<meta property="og:video" content="https://justmd.nuta.life/assets/promo.mp4">
-<meta property="og:video:type" content="video/mp4">
-<meta property="og:video:width" content="1920">
-<meta property="og:video:height" content="1080">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JustMD — Markdown, without the noise.</title>
+<meta name="description" content="A free, open-source Markdown editor for Mac. Syntax appears on the line you edit and hides when you move on. Your notes stay in plain .md files.">
+<link rel="canonical" href="https://justmd.nuta.life/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://justmd.nuta.life/">
+<meta property="og:title" content="JustMD — Markdown, without the noise.">
+<meta property="og:description" content="A free, native Markdown editor for Mac. Write, read, and keep your files yours.">
+<meta property="og:image" content="https://justmd.nuta.life/assets/shot-1-editor.png">
+<meta property="og:image:width" content="1440">
+<meta property="og:image:height" content="900">
+<meta property="og:image:alt" content="JustMD: syntax appears only on the line you edit.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>try { if (localStorage.getItem('syntax') === 'on') document.documentElement.dataset.syntax = 'on'; } catch {}</script>
 <style>
-:root {
-  --paper: #fbfaf7;
-  --ink: #1a1c20;
-  --ink-soft: #4b4f57;
-  --marker: #b3b7bf;
-  --accent: #2d5bd1;
-  --hairline: #e6e3dc;
-  --code-bg: #f1efe9;
-  --serif-display: "Fraunces", Georgia, serif;
-  --serif-body: "Newsreader", Georgia, serif;
-  --mono: "JetBrains Mono", ui-monospace, monospace;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--serif-body);
-  font-size: 1.20rem;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ——— the page IS a markdown document: syntax markers exist everywhere.
-       Shown by default; the toggle hides them exactly like the app does.
-       Hidden markers collapse to zero width so the text doesn't gap. */
-.md {
-  font-family: var(--mono);
-  font-size: 0;
-  color: var(--marker);
-  opacity: 0;
-  letter-spacing: 0;
-  transition: opacity 0.35s ease, font-size 0.35s ease;
-  user-select: none;
-  font-weight: 400;
-  font-style: normal;
-}
-body:has(#syntax:checked) .md { opacity: 1; font-size: 0.72em; }
-body:has(#syntax:checked) h2 .md { font-size: 0.6em; }
-
-/* literal markers that are part of the copy — always visible */
-.lit { font-family: var(--mono); font-size: 0.72em; color: var(--marker); }
-.code {
-  font-family: var(--mono); font-size: 0.82em; background: var(--code-bg);
-  padding: 0.1em 0.35em; border-radius: 5px;
-}
-
-.page { max-width: 720px; margin: 0 auto; padding: 0 24px; }
-
-/* toggle, styled like a toolbar control */
-.syntax-toggle {
-  position: fixed; top: 18px; right: 20px; z-index: 10;
-  display: flex; align-items: center; gap: 9px;
-  font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft);
-  cursor: pointer; padding: 8px 14px; border-radius: 999px;
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--hairline);
-}
-.syntax-toggle input { display: none; }
-.syntax-toggle .pip {
-  width: 30px; height: 17px; border-radius: 999px; background: #d8d5cd;
-  position: relative; transition: background 0.3s;
-}
-.syntax-toggle .pip::after {
-  content: ""; position: absolute; top: 2px; left: 2px;
-  width: 13px; height: 13px; border-radius: 50%; background: #fff;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.25); transition: transform 0.3s;
-}
-.syntax-toggle:has(input:checked) .pip { background: var(--accent); }
-.syntax-toggle:has(input:checked) .pip::after { transform: translateX(13px); }
-
-/* hero */
-header { padding: 108px 0 0; }
-.app-mark { display: flex; align-items: center; gap: 14px; margin-bottom: 56px; }
-.app-mark img { width: 56px; height: 56px; }
-.app-mark span { font-family: var(--mono); font-size: 0.85rem; color: var(--ink-soft); }
-h1 {
-  font-family: var(--serif-display);
-  font-size: clamp(2.6rem, 6.4vw, 4.1rem);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.015em;
-  max-width: 14em;
-}
-.subhead {
-  margin-top: 28px; font-size: 1.32rem; color: var(--ink-soft); max-width: 30em;
-}
-.cta-row { display: flex; align-items: center; gap: 22px; margin-top: 44px; flex-wrap: wrap; }
-.badge { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; }
-.badge img { height: 56px; width: auto; display: block; transition: transform 0.18s ease, filter 0.18s ease; }
-.badge:hover img { transform: translateY(-2px); filter: drop-shadow(0 10px 22px rgba(26,28,32,0.22)); }
-.badge small { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-soft); line-height: 1.5; }
-.cta-alt { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-bottom: 2px; }
-.cta-alt:hover { color: var(--accent); border-color: var(--accent); }
-
-/* promo video (the hero shot) */
-.shot { margin: 84px calc(50% - 50vw) 0; display: flex; justify-content: center; }
-.shot video, .shot img {
-  width: min(1060px, 94vw); border-radius: 18px;
-  box-shadow: 0 30px 80px rgba(30,40,80,0.18);
-  border: 1px solid var(--hairline);
-  background: #ebebed; display: block;
-}
-.shot video { aspect-ratio: 16 / 9; }
-
-/* sections as document structure */
-main { padding-top: 30px; }
-section { padding: 78px 0 8px; }
-h2 {
-  font-family: var(--serif-display); font-weight: 600;
-  font-size: 2.0rem; letter-spacing: -0.01em; margin-bottom: 30px;
-}
-h2 .md { vertical-align: 0.18em; margin-right: 0.45em; }
-p + p { margin-top: 1em; }
-strong { font-weight: 600; }
-
-/* pain points as the app renders blockquotes: accent bar, no '>' */
-.pains blockquote {
-  border-left: 3px solid var(--accent); padding: 2px 0 2px 22px;
-  margin: 0 0 22px; color: var(--ink-soft);
-}
-.pains blockquote .md { margin-right: 0.4em; }
-.pains .bridge { margin-top: 34px; color: var(--ink); font-weight: 500; }
-
-/* how it works: a rendered ordered list */
-.steps ol { list-style: none; counter-reset: step; }
-.steps li {
-  counter-increment: step; display: grid;
-  grid-template-columns: 52px 1fr; gap: 0 18px; padding: 18px 0;
-  border-top: 1px solid var(--hairline); align-items: baseline;
-}
-.steps li:last-child { border-bottom: 1px solid var(--hairline); }
-.steps li::before {
-  content: counter(step) "."; font-family: var(--serif-display);
-  font-size: 1.7rem; font-weight: 600; color: var(--marker);
-}
-.steps b { font-weight: 600; }
-.steps kbd {
-  font-family: var(--mono); font-size: 0.78em; background: var(--code-bg);
-  border: 1px solid var(--hairline); border-bottom-width: 2px;
-  border-radius: 6px; padding: 0.08em 0.45em;
-}
-
-/* benefits as a rendered task list */
-.benefits ul { list-style: none; }
-.benefits li { display: flex; gap: 14px; padding: 11px 0; align-items: baseline; }
-.benefits li::before {
-  content: "☑"; color: var(--accent); font-size: 1.15em; line-height: 1.3;
-}
-.benefits li .md { margin-right: 0.2em; }
-
-/* final cta */
-.fin { text-align: center; padding: 120px 0 40px; }
-.fin h2 { font-size: 2.5rem; }
-.fin .sub { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); margin-top: 26px; }
-
-footer {
-  margin-top: 90px; border-top: 1px solid var(--hairline);
-  padding: 30px 0 44px; display: flex; gap: 26px; flex-wrap: wrap;
-  font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft);
-}
-footer a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--hairline); }
-footer a:hover { color: var(--accent); border-color: var(--accent); }
-footer .spacer { flex: 1; }
-
-/* staggered load reveal */
-@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-header > *, .shot { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.app-mark { animation-delay: 0.05s; }
-h1 { animation-delay: 0.14s; }
-.subhead { animation-delay: 0.24s; }
-.cta-row { animation-delay: 0.34s; }
-.shot { animation-delay: 0.5s; }
-@media (prefers-reduced-motion: reduce) {
-  header > *, .shot { animation: none; }
-  .md, .pip, .pip::after, .badge img { transition: none; }
+:root { --paper:#fbfaf7; --ink:#1a1c20; --soft:#4b4f57; --accent:#2d5bd1; --line:#e6e3dc; --code:#f1efe9; --serif:"Newsreader",Georgia,serif; --display:"Fraunces",Georgia,serif; --mono:"JetBrains Mono",monospace; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--paper); color:var(--ink); font:1.25rem/1.5 var(--serif); -webkit-font-smoothing:antialiased; }
+a { color:inherit; text-underline-offset:4px; }
+a:hover { color:var(--accent); }
+:focus-visible { outline:3px solid var(--accent); outline-offset:5px; }
+img,video { display:block; max-width:100%; }
+button,input { font:inherit; }
+.wrap { width:min(1060px,calc(100% - 48px)); margin-inline:auto; }
+.copy { max-width:720px; margin-inline:auto; }
+.mono { font: .8125rem/1.6 var(--mono); }
+.md { display:none; color:#777d86; font: .65em var(--mono); font-weight:400; }
+html[data-syntax="on"] .md { display:inline; }
+code { font:.78em var(--mono); background:var(--code); padding:.1em .3em; border-radius:4px; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:20px; padding-block:30px; }
+.brand { display:flex; align-items:center; gap:12px; text-decoration:none; font:500 1rem var(--mono); }
+.brand img { width:44px; height:44px; }
+.syntax { display:flex; align-items:center; gap:9px; position:relative; min-height:44px; cursor:pointer; font:.75rem var(--mono); }
+.syntax input { position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+.syntax:has(input:focus-visible) { outline:3px solid var(--accent); outline-offset:6px; border-radius:4px; }
+.switch { width:30px; height:18px; background:#cbc8c0; border-radius:20px; flex:none; position:relative; }
+.switch::after { content:""; position:absolute; width:14px; height:14px; top:2px; left:2px; background:white; border-radius:50%; }
+.syntax:has(input:checked) .switch { background:var(--accent); }
+.syntax:has(input:checked) .switch::after { transform:translateX(12px); }
+.hero { padding-top:28px; }
+h1,h2,h3,p,figure { margin:0; }
+h1,h2,h3 { font-family:var(--display); font-weight:600; }
+h1 { font-size:clamp(2.65rem,6vw,4.35rem); line-height:1.08; letter-spacing:-.035em; text-wrap:balance; }
+.subhead { margin-top:24px; max-width:610px; color:var(--soft); font-size:1.35rem; }
+.cta { display:flex; align-items:center; flex-wrap:wrap; gap:14px 24px; margin-top:28px; }
+.badge { display:inline-flex; min-height:56px; }
+.badge img { width:218px; height:56px; transition:transform 150ms cubic-bezier(.25,.46,.45,.94); }
+.badge:active img { transform:scale(.98); }
+.direct { display:inline-flex; align-items:center; min-height:44px; font:.8125rem/1.5 var(--mono); }
+.facts { display:flex; flex-wrap:wrap; gap:4px 0; margin-top:17px; color:var(--soft); font:.75rem/1.7 var(--mono); }
+.facts span + span::before { content:"·"; padding:0 9px; }
+.demo { margin-top:38px; }
+.demo-frame { border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#eeedef; box-shadow:0 18px 45px #1a1c2012; }
+.demo video { width:100%; height:auto; aspect-ratio:31/18; object-fit:contain; }
+figcaption { margin-top:13px; color:var(--soft); font:.8125rem/1.6 var(--mono); }
+.demo figcaption { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.tour { padding-top:80px; }
+h2 { font-size:clamp(1.9rem,4vw,2.6rem); line-height:1.2; letter-spacing:-.02em; }
+.tour-intro { margin-top:16px; color:var(--soft); }
+.feature { display:grid; grid-template-columns:1fr 1.6fr; align-items:center; gap:48px; padding-block:44px; border-bottom:1px solid var(--line); }
+.feature:first-of-type { margin-top:12px; }
+.feature h3 { font-size:1.65rem; line-height:1.25; margin:8px 0 15px; }
+.feature p { color:var(--soft); font-size:1.15rem; }
+.number { font:.75rem var(--mono); color:var(--accent); }
+.crop { display:block; position:relative; height:300px; overflow:hidden; border:1px solid var(--line); border-radius:12px; background:#eeedef; }
+/* Use the original captures; crop only their presentation to keep details legible. */
+.crop img { position:absolute; width:900px; max-width:none; height:auto; }
+.editor img { top:-93px; left:-205px; }
+.read img { top:-85px; left:-125px; width:810px; }
+.tasks img { width:940px; top:-342px; left:-38px; }
+.crop-link { text-decoration:none; }
+.crop-link figcaption { text-decoration:underline; text-underline-offset:4px; }
+kbd { white-space:nowrap; font:.8em var(--mono); padding:.1em .3em; border:1px solid var(--line); border-radius:4px; }
+.ownership { padding-top:64px; }
+.ownership p { margin-top:18px; color:var(--soft); }
+.checklist { list-style:none; margin:24px 0 0; padding:0; }
+.checklist li { position:relative; padding:7px 0 7px 28px; font-size:1.1rem; }
+.checklist li::before { content:"✓"; position:absolute; left:0; color:var(--accent); }
+.fin { padding-top:64px; }
+.fin p { margin-top:16px; color:var(--soft); }
+footer { display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-top:72px; padding-block:26px 36px; border-top:1px solid var(--line); color:var(--soft); font:.75rem/1.6 var(--mono); }
+footer nav { display:flex; flex-wrap:wrap; gap:20px; }
+footer a { display:inline-flex; align-items:center; min-height:44px; }
+footer > span { display:flex; align-items:center; }
+@media (hover:hover) and (pointer:fine) { .badge:hover img { transform:translateY(-2px); } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+@media (max-width:700px) {
+ .wrap { width:calc(100% - 40px); }
+ .topbar { padding-block:20px; gap:14px; }
+ .brand { gap:8px; font-size:.875rem; }
+ .brand img { width:36px; height:36px; }
+ .syntax { font-size:.6875rem; gap:7px; }
+ .hero { padding-top:20px; }
+ h1 { font-size:clamp(2.4rem,10vw,3.6rem); }
+ .subhead { font-size:1.2rem; margin-top:20px; }
+ .cta { gap:8px 20px; margin-top:23px; }
+ .facts { font-size:.6875rem; }
+ .demo { margin-top:28px; }
+ .demo-frame { border-radius:10px; }
+ .tour { padding-top:54px; }
+ .feature { grid-template-columns:1fr; gap:22px; padding-block:32px; }
+ .feature h3 { margin-bottom:12px; }
+ .crop { height:260px; }
+ .editor img { width:800px; top:-80px; left:-180px; }
+ .read img { width:730px; top:-76px; left:-122px; }
+ .tasks img { width:850px; top:-307px; left:-34px; }
+ .ownership,.fin { padding-top:46px; }
+ footer { margin-top:50px; }
 }
 </style>
 </head>
 <body>
-
-<label class="syntax-toggle" title="Reveal the markdown syntax — JustMD hides it the same way">
-  <input type="checkbox" id="syntax" checked>
-  <span class="pip"></span>
-  show syntax
-</label>
-<script>
-  (function () {
-    var box = document.getElementById("syntax");
-    try { if (localStorage.getItem("syntax") === "off") box.checked = false; } catch (e) {}
-    box.addEventListener("change", function () {
-      try { localStorage.setItem("syntax", box.checked ? "on" : "off"); } catch (e) {}
-    });
-  })();
-</script>
-
-<div class="page">
-<header>
-  <div class="app-mark">
-    <img src="assets/icon.png" alt="JustMD app icon" width="56" height="56">
-    <span>JustMD — for macOS 14+</span>
-  </div>
-  <h1><span class="md"># </span>Markdown that reads like the finished&nbsp;document.</h1>
-  <p class="subhead">JustMD is a native macOS editor that hides the syntax while you write — open a <code class="code">.md</code> file and see a clean page, not a wall of <span class="md">**</span>asterisks<span class="md">**</span>.</p>
-  <div class="cta-row">
-    <a class="badge" href="https://apps.apple.com/app/id6779422717" aria-label="Download JustMD on the Mac App Store"><img src="assets/mac-app-store-badge.svg" alt="Download on the Mac App Store" width="218" height="56"><small>in review —<br>coming soon</small></a>
-    <a class="cta-alt" href="https://github.com/yuraist/justmd/releases/latest/download/JustMD-1.0.dmg">direct download → .dmg (notarized)</a>
-  </div>
+<div class="wrap">
+<div class="topbar">
+ <a class="brand" href="/" aria-label="JustMD home"><img src="assets/icon.png" alt="" width="44" height="44">JustMD</a>
+ <label class="syntax"><input type="checkbox" id="syntax" aria-label="Show Markdown syntax on this page"><span class="switch" aria-hidden="true"></span>Show syntax</label>
+</div>
+<header class="hero copy">
+ <h1><span class="md" aria-hidden="true"># </span>Markdown,<br>without the noise.</h1>
+ <p class="subhead">A native Mac editor for your <code>.md</code> files. Syntax appears on the line you edit, then gets out of the way when you move on.</p>
+ <div class="cta">
+  <a class="badge" href="/go/app-store?source=hero" aria-label="Download JustMD free on the Mac App Store"><img src="assets/mac-app-store-badge.svg" alt="Download on the Mac App Store" width="218" height="56"></a>
+  <a class="direct" href="/go/dmg?source=hero">Download .dmg <span aria-hidden="true">&nbsp;↗</span></a>
+ </div>
+ <p class="facts"><span>Free</span><span><a href="https://github.com/yuraist/just-md">Open source</a></span><span>No account</span><span>macOS 14+</span></p>
 </header>
-
-<div class="shot">
-  <video autoplay muted loop playsinline controls preload="metadata"
-         poster="assets/promo-poster.jpg"
-         aria-label="JustMD in 40 seconds: syntax that appears only on the line you edit, reading mode, checkboxes, themes, print to PDF">
-    <source src="assets/promo.mp4" type="video/mp4">
-    <img src="assets/editor.png" alt="JustMD editing a markdown document: syntax markers hidden except on the caret line">
-  </video>
-</div>
-
 <main>
-<section class="pains">
-  <h2><span class="md">##</span>You know this file.</h2>
-  <blockquote><span class="md">&gt;</span>You open a README and it's a thicket of <code class="lit">#</code>, <code class="lit">**</code> and <code class="lit">|</code> pipes — you spend more time parsing markup than reading your own words.</blockquote>
-  <blockquote><span class="md">&gt;</span>Your notes app renders markdown beautifully… inside its own library, its own sync, its own subscription. Your files are hostages.</blockquote>
-  <blockquote><span class="md">&gt;</span>You just want to edit the file. Not import it, not create a vault, not configure a preview pane.</blockquote>
-  <blockquote><span class="md">&gt;</span>And the "minimal" Electron editors take three seconds to open a text file, then type with a visible lag.</blockquote>
-  <p class="bridge">Your markdown files deserve a Mac app that treats them like documents.</p>
-</section>
-
-<section>
-  <h2><span class="md">##</span>One file, one window, one focused writing surface.</h2>
-  <p>JustMD opens your local <code class="code">.md</code> files the way TextEdit opens text — instantly, natively, no library and no lock-in.</p>
-  <p>Instead of raw markup you see the document: <strong><span class="md">**</span>syntax markers hide<span class="md">**</span></strong> on every line except the one you're editing, lists get real bullets and clickable checkboxes, tables align into grids. Flip to Read&nbsp;mode for a fully rendered page.</p>
-</section>
-
-<section class="steps">
-  <h2><span class="md">##</span>How it works</h2>
-  <ol>
-    <li><span><b>Open</b> — double-click any <code class="code">.md</code> file in Finder, or drop it on the icon.</span></li>
-    <li><span><b>Write</b> — markdown styles as you type; the caret line reveals the raw syntax when you need it.</span></li>
-    <li><span><b>Read</b> — <kbd>⇧⌘E</kbd> switches to a rendered view with real tables, images, and links.</span></li>
-    <li><span><b>Done</b> — autosave and macOS Versions keep the file safe, exactly where it lives.</span></li>
-  </ol>
-</section>
-
-<section class="benefits">
-  <h2><span class="md">##</span>Why people switch</h2>
-  <ul>
-    <li><span><span class="md">- [x] </span>Read your own notes at a glance — no syntax noise between you and the text.</span></li>
-    <li><span><span class="md">- [x] </span>Keystrokes land instantly, even in long documents — native AppKit, not a browser in a costume.</span></li>
-    <li><span><span class="md">- [x] </span>Your files stay yours: plain <code class="code">.md</code> on disk, no vault, no sync, no account.</span></li>
-    <li><span><span class="md">- [x] </span>Check off task lists by clicking, not by editing brackets.</span></li>
-    <li><span><span class="md">- [x] </span>Make it yours: five built-in themes plus shareable custom palettes.</span></li>
-  </ul>
-</section>
-
-<section class="fin">
-  <h2>Your markdown, finally legible.</h2>
-  <div class="cta-row" style="justify-content:center">
-    <a class="badge" href="https://apps.apple.com/app/id6779422717" aria-label="Download JustMD on the Mac App Store"><img src="assets/mac-app-store-badge.svg" alt="Download on the Mac App Store" width="218" height="56"><small>in review —<br>coming soon</small></a>
+ <figure class="demo">
+  <div class="demo-frame">
+   <video id="demo" muted playsinline controls preload="metadata" poster="assets/shot-1-editor.png" width="2480" height="1440" aria-label="A recording of writing Markdown in JustMD; syntax hides as the cursor moves between lines">
+    <source src="assets/typing.mp4" type="video/mp4">
+    <a href="assets/typing.mp4">Watch the editor demo.</a>
+   </video>
   </div>
-  <p class="sub">native · sandboxed · a few megabytes · macOS 14+</p>
-</section>
+  <figcaption><span>Real Markdown. A cleaner page.</span><a href="assets/promo.mp4">Watch the full tour</a></figcaption>
+ </figure>
+ <section class="tour" aria-labelledby="tour-title">
+  <div class="copy"><h2 id="tour-title"><span class="md" aria-hidden="true">## </span>From a file to a finished page.</h2><p class="tour-intro">Write a note. Read a README. Work through your list.</p></div>
+  <article class="feature">
+   <div><span class="number">01 / WRITE</span><h3>See what you’re writing.</h3><p>Headings look like headings. Bold reads as bold. Move to a line to see its Markdown and edit it.</p></div>
+   <a class="crop-link" href="assets/shot-1-editor.png" aria-label="View the full editor screenshot"><figure><div class="crop editor"><img src="assets/shot-1-editor.png" width="1440" height="900" alt="The active Features heading shows its Markdown markers; the list below appears formatted." loading="lazy"></div><figcaption>Syntax stays with the line you edit. View full screenshot ↗</figcaption></figure></a>
+  </article>
+  <article class="feature">
+   <div><span class="number">02 / READ</span><h3>Settle into the document.</h3><p>Press <kbd>⇧⌘E</kbd> for Read mode, with table grids, local images, and clickable links. Print the rendered page or save it as a PDF.</p></div>
+   <a class="crop-link" href="assets/shot-2-read.png" aria-label="View the full Read mode screenshot"><figure><div class="crop read"><img src="assets/shot-2-read.png" width="1440" height="900" alt="Read mode renders a Markdown table into aligned rows and columns." loading="lazy"></div><figcaption>Tables become grids in Read mode. View full screenshot ↗</figcaption></figure></a>
+  </article>
+  <article class="feature">
+   <div><span class="number">03 / CHECK OFF</span><h3>A little more done.</h3><p>Click a checkbox to finish a task. Choose a built-in theme or make a palette of your own.</p></div>
+   <a class="crop-link" href="assets/shot-3-tasks.png" aria-label="View the full task list and themes screenshot"><figure><div class="crop tasks"><img src="assets/shot-3-tasks.png" width="1440" height="900" alt="A reading list in the Sepia theme with completed and unfinished tasks." loading="lazy"></div><figcaption>Clickable tasks, in your own style. View full screenshot ↗</figcaption></figure></a>
+  </article>
+ </section>
+ <section class="ownership copy" aria-labelledby="files-title">
+  <h2 id="files-title"><span class="md" aria-hidden="true">## </span>Your files stay yours.</h2>
+  <p>Open an existing file from Finder or drop it onto JustMD. Save it right where it belongs, and open it in another editor whenever you like.</p>
+  <ul class="checklist">
+   <li><span class="md" aria-hidden="true">- [x] </span>Plain Markdown files on your Mac.</li>
+   <li><span class="md" aria-hidden="true">- [x] </span>Native document windows, autosave, and macOS Versions.</li>
+   <li><span class="md" aria-hidden="true">- [x] </span>Free and <a href="https://github.com/yuraist/just-md">open source</a>. No subscription or account required.</li>
+  </ul>
+ </section>
+ <section class="fin copy" aria-labelledby="download-title">
+  <h2 id="download-title"><span class="md" aria-hidden="true">## </span>Open a file. Make yourself at home.</h2>
+  <p>JustMD is free for macOS 14 and later.</p>
+  <div class="cta">
+   <a class="badge" href="/go/app-store?source=footer" aria-label="Download JustMD free on the Mac App Store"><img src="assets/mac-app-store-badge.svg" alt="Download on the Mac App Store" width="218" height="56" loading="lazy"></a>
+   <a class="direct" href="/go/dmg?source=footer">Download .dmg <span aria-hidden="true">&nbsp;↗</span></a>
+  </div>
+ </section>
 </main>
-
-<footer>
-  <span>© 2026 Yuri Istomin</span>
-  <span class="spacer"></span>
-  <a href="privacy.html">privacy</a>
-  <a href="mailto:yuri.istom@gmail.com">support</a>
-  <a href="https://github.com/yuraist/justmd/releases">releases</a>
-</footer>
+<footer><span>© 2026 Yuri Istomin</span><nav aria-label="Footer"><a href="/privacy">Privacy</a><a href="mailto:yuri.istom@gmail.com">Support</a><a href="https://github.com/yuraist/just-md">Source code</a><a href="https://github.com/yuraist/justmd/releases">Releases</a></nav></footer>
 </div>
-
+<script>
+const box = document.getElementById('syntax');
+box.checked = document.documentElement.dataset.syntax === 'on';
+box.addEventListener('change', () => {
+ document.documentElement.dataset.syntax = box.checked ? 'on' : 'off';
+ try { localStorage.setItem('syntax', box.checked ? 'on' : 'off'); } catch {}
+});
+const demo = document.getElementById('demo');
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+// Play one demonstration, without an endless loop. Reduced-motion and data-saving users opt in.
+if (!reducedMotion.matches && !navigator.connection?.saveData) demo.play().catch(() => {});
+reducedMotion.addEventListener('change', event => { if (event.matches) demo.pause(); });
+</script>
 </body>
 </html>

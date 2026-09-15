@@ -1,13 +1,19 @@
 {
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "name": "justmd-site",
+  "main": "src/worker.mjs",
   "compatibility_date": "2026-09-01",
-  // Static site: HTML + assets served straight from Workers Static Assets.
+  // Only download redirects invoke the Worker; the landing remains static.
   "assets": {
     "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/go/*"],
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
   },
+  "analytics_engine_datasets": [
+    { "binding": "DOWNLOADS", "dataset": "justmd_downloads" }
+  ],
   // Same hosting as nuta.life (Worker "nuta-life-home"): the custom domain
   // creates its own DNS record in the nuta.life zone.
   "routes": [
