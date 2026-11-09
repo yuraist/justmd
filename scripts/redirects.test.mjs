@@ -2,7 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../src/worker.mjs';
 
-const request = (path, init) => new Request(`https://justmd.nuta.life${path}`, init);
+const request = (path, init) => new Request(`https://justmd.istomin.app${path}`, init);
+test('legacy URLs redirect before assets or download analytics', async () => {
+  const bindings=env();
+  const response=await worker.fetch(new Request('https://justmd.nuta.life/go/dmg?source=hero'),bindings);
+  assert.equal(response.status,308);
+  assert.equal(response.headers.get('Location'),'https://justmd.istomin.app/go/dmg?source=hero');
+  assert.equal(bindings.points.length,0);
+});
 function env() {
   const points = [];
   return { points, DOWNLOADS: { writeDataPoint: p => points.push(p) }, ASSETS: { fetch: async () => new Response('asset') } };

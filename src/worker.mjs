@@ -6,6 +6,11 @@ const destinations = new Map([
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.hostname === 'justmd.nuta.life' && (request.method === 'GET' || request.method === 'HEAD')) {
+      url.hostname = 'justmd.istomin.app';
+      url.protocol = 'https:';
+      return Response.redirect(url, 308);
+    }
     const destination = destinations.get(url.pathname);
     if (!destination) return env.ASSETS.fetch(request);
     if (!['GET', 'HEAD'].includes(request.method)) {
